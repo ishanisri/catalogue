@@ -1,0 +1,293 @@
+<html lang="en">
+  <head>
+     <link rel="icon" 
+      type="image/jpg" 
+      href="../static/luggage.jpg">
+    <title>Python Luggage App</title>
+
+   </head>
+   <body>
+   	 <div class="navbar">
+            <nav>
+                
+                    
+                    <a href='/userHome'>Back</a>
+                    <a href="/logout">Logout</a>
+                    
+                
+            </nav>
+
+        </div>
+        <br>
+        <br>
+        <br>
+
+       
+        
+<h2>Your Luggage List</h2>
+<div>
+   		<table id="see">
+      {% if j>0 %}
+      <tr>
+        <th>S.No</th>
+        <th>Name</th>
+        <th>Contents</th>
+        <th>Image</th>
+        <th>Strike Out</th>
+      </tr>
+      
+   			{% for row in data_dict %}
+         
+            <tr>
+
+              {% if row.Strike=='OFF' %}
+               <td>{{row.i}}</td>
+               <td>{{row.Name}}</td>
+               <td>{{row.Contents}}</td>
+               <td><img src={{row.Image}} width=50 height=50 class="myImg" id=img{{row.i}} ><div  class="modal" id=modal{{row.i}}><span class="close" id=span{{row.i}}>&times;</span><img class="modal-content"  class="img01" id=modimg{{row.i}}></div></td>
+                <td><input type="checkbox" name="mycheckboxes" id={{row.Name}}></td>
+               	{% endif %}
+                {% if row.Strike=='ON' %}
+                <td>{{row.i}}</td>
+               <td>{{row.Name}}</td>
+               <td>{{row.Contents}}</td>
+               <td><img src={{row.Image}} width=50 height=50 class="myImg" id=img{{row.i}}><div  class="modal" id=modal{{row.i}}><span class="close" id=span{{row.i}}>&times;</span><img class="modal-content"  class="img01" id=modimg{{row.i}}> </div></td>
+                <td><input type="checkbox" name="mycheckboxes" id={{row.Name}} checked></td>
+               {% endif %}
+
+                
+            </tr>
+            
+         {% endfor %}
+        {% endif %}
+      </table>
+      <br>
+      <br>
+      <br>
+      <button onclick="check()" >Done</button>
+    </div>
+
+   </body>
+   <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU=" crossorigin="anonymous"></script>
+   <script>
+   
+     // Pass the checkbox name to the function
+    
+function getCheckedBoxes(chkboxName) {
+  var checkboxes = document.getElementsByName(chkboxName);
+  var checkboxesChecked = [];
+  // loop over them all
+  for (var i=0; i<checkboxes.length; i++) {
+     // And stick the checked ones onto an array...
+     if (checkboxes[i].checked) {
+        console.log(checkboxes[i].id);
+        checkboxesChecked.push(checkboxes[i].id);
+     }
+  }
+  // Return the array if it is non-empty, or null
+  return checkboxesChecked.length > 0 ? checkboxesChecked : null;
+}
+function check(){
+var checkedBoxes = getCheckedBoxes("mycheckboxes");
+
+console.log(checkedBoxes);
+$.ajax({
+    url:'/dostrike',
+        data:JSON.stringify(checkedBoxes),
+    datatype:"json",
+    contentType: "application/json; charset=UTF-8",
+    success: function(data){
+      console.log(data);
+      window.location.assign('/userHome')
+      
+    },
+    type:'POST'
+  })
+}
+
+
+ $(document).ready(function(){
+var modalarray = document.getElementsByClassName('modal');
+console.log("hi")
+var imgarray=document.getElementsByClassName('myImg');
+var modalImgarray=document.getElementsByClassName('img01');
+var spanarray = document.getElementsByClassName("close")
+console.log(imgarray);
+console.log(modalImgarray);
+console.log(spanarray);
+// Get the image and insert it inside the modal - use its "alt" text as a caption
+if(modalarray.length>0){
+for(var i=0;i<modalarray.length;i++)
+
+{ var id1="modal"+(i+1);
+var id2="img"+(i+1);
+var id4="span"+(i+1);
+var id3="modimg"+(i+1);
+console.log(id1);
+  var modal=document.getElementById(id1);
+  var img = document.getElementById(id2);
+var modalImg = document.getElementById(id3);
+img.onclick = function(){
+    modal.style.display="block";
+    modalImg.src = this.src;
+    
+}
+
+// Get the <span> element that closes the modal
+var span =document.getElementById(id4) ;
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() { 
+    modal.style.display = "none";
+}}
+}})
+   </script>
+
+
+   <style>
+  button{
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    float: center;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+
+button:hover {
+    background-color: #45a049;}
+
+.form-group{ border-radius: 5px;
+    background-color: #f2f2f2;
+    padding: 20px;
+  }
+h2{
+  color:orange;
+}
+#see {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 75%;
+
+}
+
+#see td, #see th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+
+
+#see tr:hover {background-color: #ddd;}
+
+#see th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+}
+
+
+*{
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+ .navbar {
+    overflow: hidden;
+    background-color: #333;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.navbar a {
+    float: left;
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+
+.myImg {
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.myImg:hover {opacity: 0.7;}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+}
+/* Modal Content (image) */
+.modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+}
+/* Add Animation */
+.modal-content{    
+    -webkit-animation-name: zoom;
+    -webkit-animation-duration: 0.6s;
+    animation-name: zoom;
+    animation-duration: 0.6s;
+}
+
+@-webkit-keyframes zoom {
+    from {-webkit-transform:scale(0)} 
+    to {-webkit-transform:scale(1)}
+}
+
+@keyframes zoom {
+    from {transform:scale(0)} 
+    to {transform:scale(1)}
+}
+
+/* The Close Button */
+.close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+    .modal-content {
+        width: 100%;
+    }
+}
+
+
+
+</style>
+
+
+
+   </html>

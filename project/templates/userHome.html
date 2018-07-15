@@ -1,0 +1,352 @@
+<html lang="en">
+
+  <head>
+    <link rel="icon" 
+      type="image/jpg" 
+      href="../static/luggage.jpg">
+    <title>Python Luggage App</title>
+
+   </head>
+   <body>
+   	 <div class="navbar">
+            <nav>
+                
+                    
+                    <a href='/addContents'>Add Contents</a>
+                    <a href="/logout">Logout</a>
+                    <a href="/strike">Strike out things taken out</a>
+                    <button id="share">Share</button>
+                
+            </nav>
+
+        </div>
+        <br>
+        <br>
+        <br>
+
+       
+        
+<h2>Your Luggage List</h2>
+<div>
+   		<table id="see">
+      {% if j>0 %}
+      <tr>
+        <th>S.No</th>
+        <th>Name</th>
+        <th>Contents</th>
+        <th>Image</th>
+      </tr>
+      
+   			{% for row in data_dict %}
+         
+          <tr>
+
+               {% if row.Strike=='ON' %}
+               <td><strike>{{row.i}}</strike></td>
+               <td><strike>{{row.Name}}</strike></td>
+               <td><strike>{{row.Contents}}</strike></td>
+               <td><img src={{row.Image}} width=50 height=50 id=img{{row.i}} class="myImg"><div  class="modal" id=modal{{row.i}}><span class="close" id=span{[row.i}}>&times;</span><img class="modal-content" id=modimg{{row.i}}></div></td>
+               {% endif %}
+               {% if row.Strike=='OFF' %}
+               <td>{{row.i}}</td>
+               <td>{{row.Name}}</td>
+               <td>{{row.Contents}}</td>
+               <td><img src={{row.Image}} width=50 height=50 id=img{{row.i}}><div  id=modal{{row.i}} class="modal" class="myImg"><span class="close" id=span{{row.i}}>&times;</span><img class="modal-content" id=modimg{{row.i}}></div></td>
+              {% endif %}
+               	
+               
+
+                
+            </tr>
+            
+         {% endfor %}
+        {% endif %}
+      </table>
+    </div>
+
+   </body>
+   <!--<script src="https://googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>-->
+   <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU=" crossorigin="anonymous"></script>
+   <script>
+   $(document).ready(function(){// Get the modal
+   var modalarray = document.getElementsByClassName('modal');
+// Get the image and insert it inside the modal - use its "alt" text as a caption
+if(modalarray.length>0)
+{for(var i=0;i<modalarray.length;i++)
+
+{ var id1="modal"+(i+1);
+var id2="img"+(i+1);
+var id4="span"+(i+1);
+var id3="modimg"+(i+1);
+console.log(id4);
+  var modal=document.getElementById(id1);
+  var img = document.getElementById(id2);
+var modalImg = document.getElementById(id3);
+img.onclick = function(){
+    modal.style.display="block";
+    modalImg.src = this.src;
+    
+}
+
+// Get the <span> element that closes the modal
+var span =document.getElementById(id4) ;
+console.log(span);
+// When the user clicks on <span> (x), close the modal
+$("span").on('click',function(){ 
+    modal.style.display = "none";
+});
+}
+}
+})
+
+
+
+const shareBtn = document.getElementById("share");
+
+shareBtn.addEventListener('click', () => {
+  if (navigator.share) {
+    navigator.share({
+      title: 'My awesome post!',
+      text: 'This post may or may not contain the answer to the universe',
+      url: window.location.href
+    }).then(() => {
+      console.log('Thanks for sharing!');
+    })
+    .catch(err => {
+      console.log(`Couldn't share because of`, err.message);
+    });
+  } else {
+    console.log('web share not supported');
+  }
+});   
+
+</script>
+  <!-- <script src="../main.js"></script>-->
+  <!--<script>
+  function currently(id){
+  	console.log(document.getElementsByTagName("h3")[id].innerHTML);
+  	$.ajax({
+		url:"/currently",
+        data:JSON.stringify(document.getElementsByTagName("h3")[id].innerHTML),
+		datatype:"json",
+		contentType: "application/json; charset=UTF-8",
+		success: function(data){
+			console.log(data);
+			location.reload(true);
+			
+		},
+		type:'POST'
+	})
+  }
+  
+  function library(id){
+  	console.log(document.getElementsByTagName("h3")[id].innerHTML);
+  	$.ajax({
+		url:"/library",
+        data:JSON.stringify(document.getElementsByTagName("h3")[id].innerHTML),
+		datatype:"json",
+		contentType: "application/json; charset=UTF-8",
+		success: function(data){
+			console.log(data);
+			location.reload(true);
+			
+		},
+		type:'POST'
+	})
+  }
+  
+ function want(id){
+  	console.log(document.getElementsByTagName("h3")[id].innerHTML);
+  	$.ajax({
+		url:"/want",
+        data:JSON.stringify(document.getElementsByTagName("h3")[id].innerHTML),
+		datatype:"json",
+		contentType: "application/json; charset=UTF-8",
+		success: function(data){
+			console.log(data);
+			location.reload(true);
+			
+		},
+		type:'POST'
+	})
+  }
+  function favourites(id){
+  	console.log(document.getElementsByTagName("h3")[id].innerHTML);
+  	$.ajax({
+		url:"/favourites",
+        data:JSON.stringify(document.getElementsByTagName("h3")[id].innerHTML),
+		datatype:"json",
+		contentType: "application/json; charset=UTF-8",
+		success: function(data){
+			console.log(data);
+			location.reload(true);
+			
+		},
+		type:'POST'
+	})
+  }
+  
+   
+
+
+  
+  </script>-->
+
+  <style>
+  input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    float: center;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+
+input[type=submit]:hover {
+    background-color: #45a049;}
+
+.form-group{ border-radius: 5px;
+    background-color: #f2f2f2;
+    padding: 20px;
+  }
+h2{
+  color:orange;
+}
+#see {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 75%;
+
+}
+
+#see td, #see th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+
+
+#see tr:hover {background-color: #ddd;}
+
+#see th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+}
+
+
+*{
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+ .navbar {
+    overflow: hidden;
+    background-color: #333;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.navbar a {
+    float: left;
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+#share{
+  float: left;
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    background-color:#333;
+    border:none;
+    cursor:pointer;
+}
+#share:focus {outline:0;}
+
+
+.myImg {
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.myImg:hover {opacity: 0.7;}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+}
+/* Modal Content (image) */
+.modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+}
+/* Add Animation */
+.modal-content{    
+    -webkit-animation-name: zoom;
+    -webkit-animation-duration: 0.6s;
+    animation-name: zoom;
+    animation-duration: 0.6s;
+}
+
+@-webkit-keyframes zoom {
+    from {-webkit-transform:scale(0)} 
+    to {-webkit-transform:scale(1)}
+}
+
+@keyframes zoom {
+    from {transform:scale(0)} 
+    to {transform:scale(1)}
+}
+
+/* The Close Button */
+.close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+    .modal-content {
+        width: 100%;
+    }
+}
+
+
+</style>
+
+
+
+   </html>
