@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from flask import send_from_directory
 import requests
 import simplejson as json
+from flask_socketio import SocketIO, emit
 
 UPLOAD_FOLDER = './static/uploads'
 ALLOWED_EXTENSIONS = set([ 'png', 'jpg', 'jpeg', 'gif'])
@@ -14,6 +15,7 @@ ALLOWED_EXTENSIONS = set([ 'png', 'jpg', 'jpeg', 'gif'])
 app = Flask(__name__)
 app.secret_key="why would i tell my secret key?"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+socketio = SocketIO(app)
 
 
 
@@ -48,17 +50,24 @@ def signedUp():
         hashed_password = generate_password_hash(password)
         print(hashed_password)
         
+
         print("hi")	
         
         with sql.connect("luggage.db") as con:
             cur = con.cursor()
             cur.execute("CREATE TABLE IF NOT EXISTS account_holder(rollno TEXT  NOT NULL PRIMARY KEY,username TEXT DEFAULT NULL,password TEXT DEFAULT NULL)")
-            cur.execute("INSERT INTO account_holder (rollno,username,password) VALUES (?,?,?)", (rollno,username,hashed_password))
-            cur.execute("CREATE TABLE IF NOT EXISTS luggage_list(roll INTEGER DEFAULT NULL,luggage_name TEXT DEFAULT NULL,contents TEXT DEFAULT NULL,image BLOB,striked TEXT DEFAULT OFF)")
             cur.execute("SELECT * FROM account_holder where rollno=?",(rollno,))
             data=cur.fetchall()
-            print(data)
-            con.commit()
+            if(data):
+            	return render_template('error.html',error="User exists already")
+
+            else: 	
+	            cur.execute("INSERT INTO account_holder (rollno,username,password) VALUES (?,?,?)", (rollno,username,hashed_password))
+	            cur.execute("CREATE TABLE IF NOT EXISTS luggage_list(roll INTEGER DEFAULT NULL,luggage_name TEXT DEFAULT NULL,contents TEXT DEFAULT NULL,image BLOB,striked TEXT DEFAULT OFF)")
+	            cur.execute("SELECT * FROM account_holder where rollno=?",(rollno,))
+	            data=cur.fetchall()
+	            print(data)
+	            con.commit()
 
                                                                                          
         session['user']=rollno
@@ -228,15 +237,28 @@ def striketime():
 @app.route('/userHome',methods=['GET','POST'])
 def userHome():
     data_dict=[]
-    
+    data1=[]
         
     con = sql.connect("luggage.db")
     cur=con.cursor()
-        
+    
+
     try:
             if(session.get('user')):
                 roll=session.get('user')
                 print(roll)
+                cur.execute("SELECT rollno from account_holder where rollno!=?",(roll,))
+                datauser=cur.fetchall()
+                print(datauser)
+                for row in datauser:
+                        
+                        row_dict={
+                         'User':row[0]
+
+                        }
+                        
+                        data1.append(row_dict)
+                
                 cur.execute("SELECT * FROM luggage_list WHERE roll=?",(roll,))
                 data=cur.fetchall()
                 print(data)
@@ -264,7 +286,7 @@ def userHome():
     finally:
             cur.close()
             con.close()
-    return render_template('userHome.html',data_dict=data_dict,j=j)    
+    return render_template('userHome.html',data_dict=data_dict,j=j,user=session.get('user'),data1=data1)    
 
 
 
@@ -274,6 +296,27 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@socketio.on('my event')
+def test_message(message):
+    print(message['data'])
+    roll=message['data']
+    user=session.get('user')
+    con = sql.connect("luggage.db")
+    cur=con.cursor()
+    cur.execute("SELECT * FROM luggage_list WHERE roll=?",(user,))
+    data=cur.fetchall()
+    print(data)
+    j=0
+    i=0
+    for row in data:
+                        i=i+1
+                        
+    
+    
+    emit('my response', {'data':i,'sendto':str(roll),'whosent':str(user)},broadcast=True)
+    
+
+
 @app.route('/preview/<filename>')
 def uploaded_file(filename):
 
@@ -281,4 +324,6 @@ def uploaded_file(filename):
 
 
 if __name__ == "__main__":
-     app.run(debug=True)  
+     #app.run(debug=True)
+     print("start")
+     socketio.run(app)  
